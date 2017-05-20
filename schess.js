@@ -542,14 +542,25 @@ var SChess = function (fen) {
         return piece;
     }
 
-    function build_move(board, from, to, flags, promotion) {
+    function build_move(board, from, to, flags, promotion, s_square) {
         var move = {
             color: turn,
             from: from,
             to: to,
             flags: flags,
-            piece: board[from].type
+            piece: board[from].type,
+            s_square: s_square ? s_square : from
         };
+
+        if (flags & (BITS.ELEPHANT | BITS.HAWK)) {
+            move.s_square = s_square ? s_square : from;
+            if (flags & BITS.ELEPHANT) {
+                move.s_piece = 'E';
+            }
+            if (flags & BITS.HAWK) {
+                move.s_piece = 'H';
+            }
+        }
 
         if (promotion) {
             move.flags |= BITS.PROMOTION;
@@ -565,7 +576,7 @@ var SChess = function (fen) {
     }
 
     function generate_moves(options) {
-        function add_move(board, moves, from, to, flags) {
+        function add_move(board, moves, from, to, flags, s_placement = null) {
             /* if pawn promotion */
             if (board[from].type === PAWN &&
                 (rank(to) === RANK_8 || rank(to) === RANK_1)) {
@@ -588,6 +599,23 @@ var SChess = function (fen) {
                             if (s_pieces[turn] & BITS.HAWK) {
                                 flags |= BITS.HAWK;
                                 moves.push(build_move(board, from, to, flags));
+                            }
+                            if (flags & (BITS.KSIDE_CASTLE | BITS.QSIDE_CASTLE)) {
+                                // if castling, generate additional E/H placement
+                                // moves on the rook's from-square
+                                if (flags & BITS.KSIDE_CASTLE) {
+                                    if (turn === WHITE) {
+                                        moves.push(build_move(board, from, to, flags, undefined, SQUARES.h1));
+                                    } else {
+                                        moves.push(build_move(board, from, to, flags, undefined, SQUARES.h8));
+                                    }
+                                } else if (flags & BITS.QSIDE_CASTLE) {
+                                    if (turn === WHITE) {
+                                        moves.push(build_move(board, from, to, flags, undefined, SQUARES.a1));
+                                    } else {
+                                        moves.push(build_move(board, from, to, flags, undefined, SQUARES.a8));
+                                    }
+                                }
                             }
                         }
                     }
