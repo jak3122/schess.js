@@ -1,0 +1,105 @@
+{
+  "_args": [
+    [
+      {
+        "raw": "crazyhouse.js@0.0.7",
+        "scope": null,
+        "escapedName": "crazyhouse.js",
+        "name": "crazyhouse.js",
+        "rawSpec": "0.0.7",
+        "spec": "0.0.7",
+        "type": "version"
+      },
+      "/home/ubuntu/workspace"
+    ]
+  ],
+  "_from": "crazyhouse.js@0.0.7",
+  "_id": "crazyhouse.js@0.0.7",
+  "_inCache": true,
+  "_location": "/crazyhouse.js",
+  "_nodeVersion": "6.9.1",
+  "_npmOperationalInternal": {
+    "host": "packages-12-west.internal.npmjs.com",
+    "tmp": "tmp/crazyhouse.js-0.0.7.tgz_1492641133740_0.8085301658138633"
+  },
+  "_npmUser": {
+    "name": "jak3122",
+    "email": "jak3122@rit.edu"
+  },
+  "_npmVersion": "4.2.0",
+  "_phantomChildren": {},
+  "_requested": {
+    "raw": "crazyhouse.js@0.0.7",
+    "scope": null,
+    "escapedName": "crazyhouse.js",
+    "name": "crazyhouse.js",
+    "rawSpec": "0.0.7",
+    "spec": "0.0.7",
+    "type": "version"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/crazyhouse.js/-/crazyhouse.js-0.0.7.tgz",
+  "_shasum": "c34f1482a685039d3466fbdb7f22e3c862ecc003",
+  "_shrinkwrap": null,
+  "_spec": "crazyhouse.js@0.0.7",
+  "_where": "/home/ubuntu/workspace",
+  "author": {
+    "name": "Joseph Ksiazek",
+    "email": "jak3122@rit.edu",
+    "url": "https://github.com/jak3122"
+  },
+  "bugs": {
+    "url": "https://github.com/jak3122/crazyhouse.js/issues"
+  },
+  "dependencies": {},
+  "description": "A Javascript library for crazyhouse with 960 support, based on the chess.js library.",
+  "devDependencies": {
+    "chai": "3.5.0",
+    "mocha": "3.2.0",
+    "uglify-js": "2.4.21"
+  },
+  "directories": {},
+  "dist": {
+    "shasum": "c34f1482a685039d3466fbdb7f22e3c862ecc003",
+    "tarball": "https://registry.npmjs.org/crazyhouse.js/-/crazyhouse.js-0.0.7.tgz"
+  },
+  "filename": "crazyhouse.min.js",
+  "gitHead": "96eb91c7c6b5dd8164663af0126e0800636475b5",
+  "homepage": "https://github.com/jak3122/crazyhouse.js",
+  "keywords": [
+    "chess",
+    "crazyhouse"
+  ],
+  "license": "BSD-2-Clause",
+  "main": "crazyhouse.js",
+  "maintainers": [
+    {
+      "name": "jak3122",
+      "email": "jak3122@rit.edu"
+    }
+  ],
+  "name": "crazyhouse.js",
+  "npmFileMap": [
+    {
+      "basePath": "",
+      "files": [
+        "crazyhouse.js"
+      ]
+    }
+  ],
+  "npmName": "crazyhouse.js",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jak3122/crazyhouse.js.git"
+  },
+  "scripts": {
+    "minify": "uglifyjs crazyhouse.js -c -m --comments 'license' > crazyhouse.min.js",
+    "test": "mocha"
+  },
+  "version": "0.0.7"
+}
