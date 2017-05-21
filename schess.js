@@ -72,6 +72,8 @@ var SChess = function (fen) {
         q: [-17, -16, -15, 1, 17, 16, 15, -1],
         k: [-17, -16, -15, 1, 17, 16, 15, -1]
     };
+    PIECE_OFFSETS.e = PIECE_OFFSETS.r.concat(PIECE_OFFSETS.n);
+    PIECE_OFFSETS.h = PIECE_OFFSETS.b.concat(PIECE_OFFSETS.n);
 
     var ATTACKS = [
         20, 0, 0, 0, 0, 0, 0, 24, 0, 0, 0, 0, 0, 0, 20, 0,
@@ -110,6 +112,16 @@ var SChess = function (fen) {
     ];
 
     var SHIFTS = { p: 0, n: 1, b: 2, r: 3, q: 4, k: 5, e: 6, h: 7 };
+    var MASKS = {
+        p: 1,
+        n: 1 << 1,
+        b: 1 << 2,
+        r: 1 << 3,
+        q: 1 << 4,
+        k: 1 << 5
+    };
+    MASKS.e = MASKS.n | MASKS.r;
+    MASKS.h = MASKS.n | MASKS.b;
 
     var FLAGS = {
         NORMAL: 'n',
@@ -846,7 +858,7 @@ var SChess = function (fen) {
             var difference = i - square;
             var index = difference + 119;
 
-            if (ATTACKS[index] & (1 << SHIFTS[piece.type])) {
+            if (ATTACKS[index] & MASKS[piece.type]) {
                 if (piece.type === PAWN) {
                     if (difference > 0) {
                         if (piece.color === WHITE) return true;
@@ -858,6 +870,9 @@ var SChess = function (fen) {
 
                 /* if the piece is a knight or a king */
                 if (piece.type === 'n' || piece.type === 'k') return true;
+                /* hawk and elephant also move like a knight,
+                   so return true for them too */
+                if (piece.type === 'e' || piece.type === 'h') return true;
 
                 var offset = RAYS[index];
                 var j = i + offset;
