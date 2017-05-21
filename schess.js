@@ -56,7 +56,7 @@ var SChess = function (fen) {
 
     var SYMBOLS = 'pnbrqkehPNBRQKEH';
 
-    var DEFAULT_POSITION = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR EHeh w KQkq - 0 1';
+    var DEFAULT_POSITION = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR SSSSSSSSssssssss EHeh w KQkq - 0 1';
 
     var POSSIBLE_RESULTS = ['1-0', '0-1', '1/2-1/2', '*'];
 
@@ -248,7 +248,6 @@ var SChess = function (fen) {
         }
 
         clear();
-
         for (var i = 0; i < position.length; i++) {
             var piece = position.charAt(i);
 
@@ -585,10 +584,10 @@ var SChess = function (fen) {
                 move.s_square = s_square ? s_square : from;
             }
             if (flags & BITS.ELEPHANT) {
-                move.s_piece = 'E';
+                move.s_piece = ELEPHANT;
             }
             if (flags & BITS.HAWK) {
-                move.s_piece = 'H';
+                move.s_piece = HAWK;
             }
         }
 
@@ -671,6 +670,28 @@ var SChess = function (fen) {
             }
         }
 
+        function gen_piece_moves(square, type) {
+            for (var j = 0, len = PIECE_OFFSETS[type].length; j < len; j++) {
+                var offset = PIECE_OFFSETS[type][j];
+                let sq = square;
+                while (true) {
+                    sq += offset;
+                    if (sq & 0x88) break;
+
+                    if (board[sq] == null) {
+                        add_move(board, moves, i, sq, BITS.NORMAL);
+                    } else {
+                        if (board[sq].color === us) break;
+                        add_move(board, moves, i, sq, BITS.CAPTURE);
+                        break;
+                    }
+
+                    /* break, if knight or king */
+                    if (type === 'n' || type === 'k') break;
+                }
+            }
+        }
+
         var moves = [];
         var us = turn;
         var them = swap_color(us);
@@ -729,27 +750,14 @@ var SChess = function (fen) {
                         add_move(board, moves, i, ep_square, BITS.EP_CAPTURE);
                     }
                 }
+            } else if (piece.type === ELEPHANT) {
+                gen_piece_moves(i, KNIGHT);
+                gen_piece_moves(i, ROOK);
+            } else if (piece.type === HAWK) {
+                gen_piece_moves(i, KNIGHT);
+                gen_piece_moves(i, BISHOP);
             } else {
-                for (var j = 0, len = PIECE_OFFSETS[piece.type].length; j < len; j++) {
-                    var offset = PIECE_OFFSETS[piece.type][j];
-                    var square = i;
-
-                    while (true) {
-                        square += offset;
-                        if (square & 0x88) break;
-
-                        if (board[square] == null) {
-                            add_move(board, moves, i, square, BITS.NORMAL);
-                        } else {
-                            if (board[square].color === us) break;
-                            add_move(board, moves, i, square, BITS.CAPTURE);
-                            break;
-                        }
-
-                        /* break, if knight or king */
-                        if (piece.type === 'n' || piece.type === 'k') break;
-                    }
-                }
+                gen_piece_moves(i, piece.type);
             }
         }
 
@@ -849,7 +857,7 @@ var SChess = function (fen) {
         }
 
         if (move.s_piece) {
-            output += '/' + move.s_piece;
+            output += '/' + move.s_piece.toUpperCase();
             if (move.s_square) {
                 output += algebraic(move.s_square);
             }
@@ -1029,7 +1037,6 @@ var SChess = function (fen) {
         var us = turn;
         var them = swap_color(us);
         push(move);
-
         board[move.to] = board[move.from];
         board[move.from] = null;
 
@@ -1057,11 +1064,17 @@ var SChess = function (fen) {
                 var castling_from = move.to + 1;
                 board[castling_to] = board[castling_from];
                 board[castling_from] = null;
+                if (pieces_moved[turn] & PIECE_BITS[square_to_piece_order[castling_from]]) {
+                    pieces_moved[turn] ^= PIECE_BITS[square_to_piece_order[castling_from]];
+                }
             } else if (move.flags & BITS.QSIDE_CASTLE) {
                 var castling_to = move.to + 1;
                 var castling_from = move.to - 2;
                 board[castling_to] = board[castling_from];
                 board[castling_from] = null;
+                if (pieces_moved[turn] & PIECE_BITS[square_to_piece_order[castling_from]]) {
+                    pieces_moved[turn] ^= PIECE_BITS[square_to_piece_order[castling_from]];
+                }
             }
 
             /* turn off castling */
@@ -1078,7 +1091,14 @@ var SChess = function (fen) {
             }
             board[placement_square] = { type: move.s_piece, color: us };
             s_pieces[turn] ^= move.flags;
-            pieces_moved[turn] ^= PIECE_BITS[square_to_piece_order[move.from]];
+        }
+
+        // if a piece if moving for the first time, disable placement
+        // of elephant & hawk
+        if (move.piece !== PAWN && move.piece !== ELEPHANT && move.piece !== HAWK) {
+            if (pieces_moved[turn] & PIECE_BITS[square_to_piece_order[move.from]]) {
+                pieces_moved[turn] ^= PIECE_BITS[square_to_piece_order[move.from]];
+            }
         }
 
         /* turn off castling if we move a rook */
@@ -1269,7 +1289,6 @@ var SChess = function (fen) {
     function move_from_san(move, sloppy) {
         // strip off any move decorations: e.g Nf3+?!
         var clean_move = stripped_san(move);
-
         // if we're using the sloppy parser run a regex to grab piece, to, and from
         // this should parse invalid SAN like: Pe2-e4, Rc1c4, Qf3xf7
         if (sloppy) {
@@ -1299,7 +1318,6 @@ var SChess = function (fen) {
                 }
             }
         }
-
         return null;
     }
 
@@ -1782,7 +1800,7 @@ var SChess = function (fen) {
                         move.to === algebraic(moves[i].to) &&
                         (!('promotion' in moves[i]) ||
                             move.promotion === moves[i].promotion)) {
-                        move_obj = moves[i];
+                        move_obj = moves[i];2
                         break;
                     }
                 }
@@ -1858,6 +1876,23 @@ var SChess = function (fen) {
             }
 
             return move_history;
+        },
+
+        get_hand: function() {
+            var hand = {w: [], b: []};
+            if (s_pieces[WHITE] & BITS.ELEPHANT) {
+                hand.w.push({ type: ELEPHANT, color: WHITE });
+            }
+            if (s_pieces[WHITE] & BITS.HAWK) {
+                hand.w.push({ type: HAWK, color: WHITE });
+            }
+            if (s_pieces[BLACK] & BITS.ELEPHANT) {
+                hand.b.push({ type: ELEPHANT, color: BLACK });
+            }
+            if (s_pieces[BLACK] & BITS.HAWK) {
+                hand.b.push({ type: HAWK, color: BLACK });
+            }
+            return hand;
         }
 
     };

@@ -1,4 +1,4 @@
-var Crazyhouse = require('../crazyhouse').Crazyhouse;
+var SChess = require('../schess').SChess;
 const readline = require('readline');
 var game;
 
@@ -7,7 +7,19 @@ var game_num = 1;
 function makeRandomMove() {
     var possibleMoves = game.moves();
     if (game.game_over() === true || game.in_draw() === true || possibleMoves.length === 0) {
-        console.log("\nGame over.");
+        var result;
+        if (game.in_checkmate()) {
+            result = "Checkmate.";
+        } else if (game.in_stalemate()) {
+            result = "Stalemate.";
+        } else if (game.insufficient_material()) {
+            result = "Insufficient material.";
+        } else if (game.in_threefold_repetition()) {
+            result = "Threefold repetition.";
+        } else if (game.in_draw()) {
+            result = "Game drawn.";
+        }
+        console.log("\nGame over.", result);
         console.log(game.fen());
         console.log(game.ascii());
         console.log(game.pgn());
@@ -26,7 +38,7 @@ function makeRandomMove() {
 try {
     for (var i = 0; i < 100; i++) {
         console.log("------------ game #"+game_num+" ------------");
-        game = new Crazyhouse({960: true});
+        game = new SChess();
         console.log("start:", game.fen());
         var r = makeRandomMove();
         while (r) {
