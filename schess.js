@@ -276,7 +276,7 @@ var SChess = function (fen) {
             for (var i = 8; i < 16; i++) {
                 var piece_moved = tokens[1][i];
                 if (piece_moved == 's') {
-                    pieces_moved.b |= PIECE_BITS[piece_order[i]];
+                    pieces_moved.b |= PIECE_BITS[piece_order[i-8]];
                 }
             }
         }
@@ -331,7 +331,7 @@ var SChess = function (fen) {
     function validate_fen(fen) {
         var errors = {
             0: 'No errors.',
-            1: 'FEN string must contain six space-delimited fields.',
+            1: 'FEN string must contain eight space-delimited fields.',
             2: '6th field (move number) must be a positive integer.',
             3: '5th field (half move counter) must be a non-negative integer.',
             4: '4th field (en-passant square) is invalid.',
@@ -344,9 +344,9 @@ var SChess = function (fen) {
             11: 'Illegal en-passant square',
         };
 
-        /* 1st criterion: 6 space-seperated fields? */
+        /* 1st criterion: 8 space-seperated fields? */
         var tokens = fen.split(/\s+/);
-        if (tokens.length !== 6) {
+        if (tokens.length !== 8) {
             return { valid: false, error_number: 1, error: errors[1] };
         }
 
@@ -395,7 +395,7 @@ var SChess = function (fen) {
                     sum_fields += parseInt(rows[i][k], 10);
                     previous_was_number = true;
                 } else {
-                    if (!/^[prnbqkPRNBQK]$/.test(rows[i][k])) {
+                    if (!/^[prnbqkehPRNBQKEH]$/.test(rows[i][k])) {
                         return { valid: false, error_number: 9, error: errors[9] };
                     }
                     sum_fields += 1;
@@ -450,26 +450,34 @@ var SChess = function (fen) {
         }
 
         var pieces_moved_flags = '';
-        for (var i = 0; i < 8; i++) {
-            if (pieces_moved.w & PIECE_BITS[piece_order[i]]) {
-                pieces_moved_flags += 'S';
-            } else {
-                pieces_moved_flags += 'X';
+        if (pieces_moved.w === 0 && pieces_moved.b === 0) {
+            pieces_moved_flags = '-';
+        } else {
+            for (var i = 0; i < 8; i++) {
+                if (pieces_moved.w & PIECE_BITS[piece_order[i]]) {
+                    pieces_moved_flags += 'S';
+                } else {
+                    pieces_moved_flags += 'X';
+                }
             }
-        }
-        for (var i = 8; i < 16; i++) {
-            if (pieces_moved.b & PIECE_BITS[piece_order[i]]) {
-                pieces_moved_flags += 's';
-            } else {
-                pieces_moved_flags += 'x';
+            for (var i = 8; i < 16; i++) {
+                if (pieces_moved.b & PIECE_BITS[piece_order[i-8]]) {
+                    pieces_moved_flags += 's';
+                } else {
+                    pieces_moved_flags += 'x';
+                }
             }
         }
 
         var s_piece_flags = '';
-        if (s_pieces[WHITE] & BITS.ELEPHANT) { s_piece_flags += 'E'; }
-        if (s_pieces[WHITE] & BITS.HAWK) { s_piece_flags += 'H'; }
-        if (s_pieces[BLACK] & BITS.ELEPHANT) { s_piece_flags += 'e'; }
-        if (s_pieces[BLACK] & BITS.HAWK) { s_piece_flags += 'h'; }
+        if (s_pieces[WHITE] === 0 && s_pieces[BLACK] === 0) {
+            s_piece_flags = '-';
+        } else {
+            if (s_pieces[WHITE] & BITS.ELEPHANT) { s_piece_flags += 'E'; }
+            if (s_pieces[WHITE] & BITS.HAWK) { s_piece_flags += 'H'; }
+            if (s_pieces[BLACK] & BITS.ELEPHANT) { s_piece_flags += 'e'; }
+            if (s_pieces[BLACK] & BITS.HAWK) { s_piece_flags += 'h'; }
+        }
 
         var cflags = '';
         if (castling[WHITE] & BITS.KSIDE_CASTLE) { cflags += 'K'; }
@@ -571,11 +579,11 @@ var SChess = function (fen) {
             to: to,
             flags: flags,
             piece: board[from].type,
-            s_square: s_square ? s_square : from
         };
-
         if (flags & (BITS.ELEPHANT | BITS.HAWK)) {
-            move.s_square = s_square ? s_square : from;
+            if (flags & (BITS.KSIDE_CASTLE | BITS.QSIDE_CASTLE)) {
+                move.s_square = s_square ? s_square : from;
+            }
             if (flags & BITS.ELEPHANT) {
                 move.s_piece = 'E';
             }
@@ -612,33 +620,52 @@ var SChess = function (fen) {
                 // elephant or hawk, if available
                 if (rank(from) === RANK_1 && turn === WHITE ||
                     rank(from) === RANK_8 && turn === BLACK) {
-                        // check if the piece has been moved yet
-                        if (pieces_moved[turn] & PIECE_BITS[piece_order[square_to_piece_order[from]]]) {
-                            if (s_pieces[turn] & BITS.ELEPHANT) {
-                                flags |= BITS.ELEPHANT;
-                                moves.push(build_move(board, from, to, flags));
-                            }
-                            if (s_pieces[turn] & BITS.HAWK) {
-                                flags |= BITS.HAWK;
-                                moves.push(build_move(board, from, to, flags));
-                            }
-                            if (flags & (BITS.KSIDE_CASTLE | BITS.QSIDE_CASTLE)) {
-                                // if castling, generate additional E/H placement
-                                // moves on the rook's from-square
-                                if (flags & BITS.KSIDE_CASTLE) {
-                                    if (turn === WHITE) {
-                                        moves.push(build_move(board, from, to, flags, undefined, SQUARES.h1));
-                                    } else {
-                                        moves.push(build_move(board, from, to, flags, undefined, SQUARES.h8));
+                    // check if the piece has been moved yet
+                    var piece_moved = pieces_moved[turn] & PIECE_BITS[square_to_piece_order[from]];
+                    if (pieces_moved[turn] & PIECE_BITS[square_to_piece_order[from]]) {
+                        if (s_pieces[turn] & BITS.ELEPHANT) {
+                            moves.push(build_move(board, from, to, flags | BITS.ELEPHANT));
+                        }
+                        if (s_pieces[turn] & BITS.HAWK) {
+                            moves.push(build_move(board, from, to, flags | BITS.HAWK));
+                        }
+                        if (flags & (BITS.KSIDE_CASTLE | BITS.QSIDE_CASTLE)) {
+                            // if castling, generate additional E/H placement
+                            // moves on the rook's from-square
+                            if (flags & BITS.KSIDE_CASTLE) {
+                                if (turn === WHITE) {
+                                    if (s_pieces[turn] & BITS.ELEPHANT) {
+                                        moves.push(build_move(board, from, to, flags | BITS.ELEPHANT, undefined, SQUARES.h1));
                                     }
-                                } else if (flags & BITS.QSIDE_CASTLE) {
-                                    if (turn === WHITE) {
-                                        moves.push(build_move(board, from, to, flags, undefined, SQUARES.a1));
-                                    } else {
-                                        moves.push(build_move(board, from, to, flags, undefined, SQUARES.a8));
+                                    if (s_pieces[turn] & BITS.HAWK) {
+                                        moves.push(build_move(board, from, to, flags | BITS.HAWK, undefined, SQUARES.h1));
+                                    }
+                                } else {
+                                    if (s_pieces[turn] & BITS.ELEPHANT) {
+                                        moves.push(build_move(board, from, to, flags | BITS.ELEPHANT, undefined, SQUARES.h8));
+                                    }
+                                    if (s_pieces[turn] & BITS.HAWK) {
+                                        moves.push(build_move(board, from, to, flags | BITS.HAWK, undefined, SQUARES.h8));
+                                    }
+                                }
+                            } else if (flags & BITS.QSIDE_CASTLE) {
+                                if (turn === WHITE) {
+                                    if (s_pieces[turn] & BITS.ELEPHANT) {
+                                        moves.push(build_move(board, from, to, flags | BITS.ELEPHANT, undefined, SQUARES.a1));
+                                    }
+                                    if (s_pieces[turn] & BITS.HAWK) {
+                                        moves.push(build_move(board, from, to, flags | BITS.HAWK, undefined, SQUARES.a1));
+                                    }
+                                } else {
+                                    if (s_pieces[turn] & BITS.ELEPHANT) {
+                                        moves.push(build_move(board, from, to, flags | BITS.ELEPHANT, undefined, SQUARES.a8));
+                                    }
+                                    if (s_pieces[turn] & BITS.HAWK) {
+                                        moves.push(build_move(board, from, to, flags | BITS.HAWK, undefined, SQUARES.a8));
                                     }
                                 }
                             }
+                        }
                         }
                     }
             }
@@ -870,9 +897,10 @@ var SChess = function (fen) {
 
                 /* if the piece is a knight or a king */
                 if (piece.type === 'n' || piece.type === 'k') return true;
-                /* hawk and elephant also move like a knight,
-                   so return true for them too */
-                if (piece.type === 'e' || piece.type === 'h') return true;
+                /* for elephant and hawk, check for knight-attacks */
+                if (piece.type === 'e' || piece.type === 'h') {
+                    if (ATTACKS[index] & MASKS[KNIGHT]) return true;
+                }
 
                 var offset = RAYS[index];
                 var j = i + offset;
