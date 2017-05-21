@@ -251,30 +251,40 @@ var SChess = function (fen) {
             }
         }
 
-        for (var i = 0; i < 8; i++) {
-            var piece_moved = tokens[1][i];
-            if (piece_moved == 'S') {
-                pieces_moved.w |= PIECE_BITS[piece_order[i]];
+        if (tokens[1] === '-') {
+            pieces_moved.w = 0;
+            pieces_moved.b = 0;
+        } else {
+            for (var i = 0; i < 8; i++) {
+                var piece_moved = tokens[1][i];
+                if (piece_moved == 'S') {
+                    pieces_moved.w |= PIECE_BITS[piece_order[i]];
+                }
             }
-        }
-        for (var i = 8; i < 16; i++) {
-            var piece_moved = tokens[1][i];
-            if (piece_moved == 's') {
-                pieces_moved.b |= PIECE_BITS[piece_order[i]];
+            for (var i = 8; i < 16; i++) {
+                var piece_moved = tokens[1][i];
+                if (piece_moved == 's') {
+                    pieces_moved.b |= PIECE_BITS[piece_order[i]];
+                }
             }
         }
 
-        if (tokens[2].indexOf('E') > -1) {
-            s_pieces.w |= BITS.ELEPHANT;
-        }
-        if (tokens[2].indexOf('H') > -1) {
-            s_pieces.w |= BITS.HAWK;
-        }
-        if (tokens[2].indexOf('e') > -1) {
-            s_pieces.b |= BITS.ELEPHANT;
-        }
-        if (tokens[2].indexOf('h') > -1) {
-            s_pieces.b |= BITS.HAWK;
+        if (tokens[2] === '-') {
+            s_pieces.w = 0;
+            s_pieces.b = 0;
+        } else {
+            if (tokens[2].indexOf('E') > -1) {
+                s_pieces.w |= BITS.ELEPHANT;
+            }
+            if (tokens[2].indexOf('H') > -1) {
+                s_pieces.w |= BITS.HAWK;
+            }
+            if (tokens[2].indexOf('e') > -1) {
+                s_pieces.b |= BITS.ELEPHANT;
+            }
+            if (tokens[2].indexOf('h') > -1) {
+                s_pieces.b |= BITS.HAWK;
+            }
         }
 
         turn = tokens[3];
@@ -580,7 +590,7 @@ var SChess = function (fen) {
             /* if pawn promotion */
             if (board[from].type === PAWN &&
                 (rank(to) === RANK_8 || rank(to) === RANK_1)) {
-                var pieces = [QUEEN, ROOK, BISHOP, KNIGHT];
+                var pieces = [QUEEN, ELEPHANT, HAWK, ROOK, BISHOP, KNIGHT];
                 for (var i = 0, len = pieces.length; i < len; i++) {
                     moves.push(build_move(board, from, to, flags, pieces[i]));
                 }
@@ -799,6 +809,13 @@ var SChess = function (fen) {
             }
         }
 
+        if (move.s_piece) {
+            output += '/' + move.s_piece;
+            if (move.s_square) {
+                output += algebraic(move.s_square);
+            }
+        }
+
         make_move(move);
         if (in_check()) {
             if (in_checkmate()) {
@@ -955,6 +972,8 @@ var SChess = function (fen) {
         history.push({
             move: move,
             kings: { b: kings.b, w: kings.w },
+            s_pieces: { b: s_pieces.b, w: s_pieces.w },
+            pieces_moved: { b: pieces_moved.b, w: pieces_moved.w },
             turn: turn,
             castling: { b: castling.b, w: castling.w },
             ep_square: ep_square,
@@ -1004,6 +1023,19 @@ var SChess = function (fen) {
 
             /* turn off castling */
             castling[us] = '';
+        }
+
+        /* S-chess piece placement, Elephant or Hawk */
+        if (move.s_piece) {
+            let placement_square;
+            if (move.s_square) {
+                placement_square = move.s_square;
+            } else {
+                placement_square = move.from;
+            }
+            board[placement_square] = { type: move.s_piece, color: us };
+            s_pieces[turn] ^= move.flags;
+            pieces_moved[turn] ^= PIECE_BITS[square_to_piece_order[move.from]];
         }
 
         /* turn off castling if we move a rook */
@@ -1060,6 +1092,8 @@ var SChess = function (fen) {
 
         var move = old.move;
         kings = old.kings;
+        s_pieces = old.s_pieces;
+        pieces_moved = old.pieces_moved;
         turn = old.turn;
         castling = old.castling;
         ep_square = old.ep_square;
@@ -1196,7 +1230,7 @@ var SChess = function (fen) {
         // if we're using the sloppy parser run a regex to grab piece, to, and from
         // this should parse invalid SAN like: Pe2-e4, Rc1c4, Qf3xf7
         if (sloppy) {
-            var matches = clean_move.match(/([pnbrqkPNBRQK])?([a-h][1-8])x?-?([a-h][1-8])([qrbnQRBN])?/);
+            var matches = clean_move.match(/([pnbrqkehPNBRQKEH])?([a-h][1-8])x?-?([a-h][1-8])([qrbnehQRBNEH])?/);
             if (matches) {
                 var piece = matches[1];
                 var from = matches[2];
@@ -1324,6 +1358,8 @@ var SChess = function (fen) {
         ROOK: ROOK,
         QUEEN: QUEEN,
         KING: KING,
+        ELEPHANT: ELEPHANT,
+        HAWK: HAWK,
         SQUARES: (function () {
             /* from the ECMA-262 spec (section 12.6.4):
              * "The mechanics of enumerating the properties ... is
@@ -1786,6 +1822,6 @@ var SChess = function (fen) {
 
 /* export Chess object if using node or any other CommonJS compatible
  * environment */
-if (typeof exports !== 'undefined') exports.Chess = Chess;
+if (typeof exports !== 'undefined') exports.SChess = SChess;
 /* export Chess object for any RequireJS compatible environment */
-if (typeof define !== 'undefined') define( function () { return Chess;  });
+if (typeof define !== 'undefined') define( function () { return SChess;  });
