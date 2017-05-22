@@ -326,6 +326,12 @@ describe("Make Move", function () {
         },
         {
             fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR SSSSSSSSssssssss EHeh w KQkq - 0 1',
+            legal: true,
+            move: { from: 'b1', to: 'c3', piece: 'n', promotion: 'q', s_piece: 'e' },
+            next: 'rnbqkbnr/pppppppp/8/8/8/2N5/PPPPPPPP/REBQKBNR SXSSSSSSssssssss Heh b KQkq - 1 1'
+        },
+        {
+            fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR SSSSSSSSssssssss EHeh w KQkq - 0 1',
             legal: false,
             move: 'e5'
         },
@@ -397,7 +403,7 @@ describe("Make Move", function () {
             var result = game.move(position.move);
             if (position.legal) {
                 assert.isOk(result);
-                assert.equal(position.next, game.fen(), "result move: " + result.san);
+                assert.equal(position.next, game.fen(), "result move: " + JSON.stringify(result));
                 assert.equal(position.captured, result.captured);
             } else {
                 assert.isNotOk(result);
