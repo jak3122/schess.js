@@ -1799,7 +1799,11 @@ var SChess = function (fen) {
                     if (move.from === algebraic(moves[i].from) &&
                         move.to === algebraic(moves[i].to) &&
                         (!('promotion' in moves[i]) ||
-                            move.promotion === moves[i].promotion)) {
+                            move.promotion === moves[i].promotion) &&
+                        (!('s_piece' in moves[i]) ||
+                            move.s_piece === moves[i].s_piece) &&
+                        (!('s_square' in moves[i]) ||
+                            move.s_square === moves[i].s_square)) {
                         move_obj = moves[i];2
                         break;
                     }

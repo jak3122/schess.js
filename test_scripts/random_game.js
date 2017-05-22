@@ -36,7 +36,7 @@ function makeRandomMove() {
 }
 
 try {
-    for (var i = 0; i < 100; i++) {
+    for (var i = 0; i < 500; i++) {
         console.log("------------ game #"+game_num+" ------------");
         game = new SChess();
         console.log("start:", game.fen());
