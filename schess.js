@@ -131,8 +131,8 @@ var SChess = function (fen) {
         PROMOTION: 'p',
         KSIDE_CASTLE: 'k',
         QSIDE_CASTLE: 'q',
-        PLACE_ELEPHANT: 'pe',
-        PLACE_HAWK: 'ph'
+        ELEPHANT: '',
+        HAWK: ''
     };
 
     var BITS = {
@@ -581,7 +581,11 @@ var SChess = function (fen) {
         };
         if (flags & (BITS.ELEPHANT | BITS.HAWK)) {
             if (flags & (BITS.KSIDE_CASTLE | BITS.QSIDE_CASTLE)) {
-                move.s_square = s_square ? s_square : from;
+                if (typeof s_square === "undefined" || s_square === null) {
+                    move.s_square = from;
+                } else {
+                    move.s_square = s_square;
+                }
             }
             if (flags & BITS.ELEPHANT) {
                 move.s_piece = ELEPHANT;
@@ -605,7 +609,7 @@ var SChess = function (fen) {
     }
 
     function generate_moves(options) {
-        function add_move(board, moves, from, to, flags, s_placement = null) {
+        function add_move(board, moves, from, to, flags) {
             /* if pawn promotion */
             if (board[from].type === PAWN &&
                 (rank(to) === RANK_8 || rank(to) === RANK_1)) {
@@ -858,7 +862,7 @@ var SChess = function (fen) {
 
         if (move.s_piece) {
             output += '/' + move.s_piece.toUpperCase();
-            if (move.s_square) {
+            if (typeof move.s_square !== "undefined") {
                 output += algebraic(move.s_square);
             }
         }
@@ -1084,7 +1088,7 @@ var SChess = function (fen) {
         /* S-chess piece placement, Elephant or Hawk */
         if (move.s_piece) {
             let placement_square;
-            if (move.s_square) {
+            if (typeof move.s_square !== "undefined") {
                 placement_square = move.s_square;
             } else {
                 placement_square = move.from;
@@ -1352,6 +1356,7 @@ var SChess = function (fen) {
         move.san = move_to_san(move, false);
         move.to = algebraic(move.to);
         move.from = algebraic(move.from);
+        if (typeof move.s_square !== "undefined") move.s_square = algebraic(move.s_square);
 
         var flags = '';
 
@@ -1802,7 +1807,7 @@ var SChess = function (fen) {
                         ((!('s_piece' in moves[i]) && !('s_piece' in move)) ||
                             move.s_piece === moves[i].s_piece) &&
                         ((!('s_square' in moves[i]) && !('s_square' in move)) ||
-                            move.s_square === moves[i].s_square)) {
+                            move.s_square === algebraic(moves[i].s_square))) {
                         move_obj = moves[i];
                         break;
                     }

@@ -394,6 +394,19 @@ describe("Make Move", function () {
             legal: false,
             move: 'Eg4',
         },
+        {
+            fen: 'rnbqk2r/pppp1pp1/5n1p/2b1p3/2B1P3/2N2N2/PPPP1PPP/REBQK2R SXSSSXXSsssssxxs Heh w KQkq - 0 5',
+            legal: true,
+            move: {'from': 'e1', 'to': 'g1', 'piece': 'k', 's_piece': 'h', 's_square': 'e1'},
+            next: 'rnbqk2r/pppp1pp1/5n1p/2b1p3/2B1P3/2N2N2/PPPP1PPP/REBQHRK1 SXSSXXXXsssssxxs eh b kq - 1 5'
+        },
+        {
+            fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR SSSSSSSSssssssss EHeh w KQkq - 0 1',
+            legal: true,
+            move: 'Nf3/E',
+	    move: { 'from': 'g1', 'to': 'f3', 'piece': 'n', 's_piece': 'e' },
+            next: 'rnbqkbnr/pppppppp/8/8/8/5N2/PPPPPPPP/RNBQKBER SSSSSSXSssssssss Heh b KQkq - 1 1'
+        },
     ];
 
     positions.forEach(function (position) {
