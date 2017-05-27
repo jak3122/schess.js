@@ -1094,7 +1094,12 @@ var SChess = function (fen) {
                 placement_square = move.from;
             }
             board[placement_square] = { type: move.s_piece, color: us };
-            s_pieces[turn] ^= move.flags;
+            if (move.flags & BITS.ELEPHANT) {
+                s_pieces[turn] ^= BITS.ELEPHANT;
+            }
+            if (move.flags & BITS.HAWK) {
+                s_pieces[turn] ^= BITS.HAWK;
+            }
         }
 
         // if a piece if moving for the first time, disable placement
