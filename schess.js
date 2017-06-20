@@ -677,7 +677,7 @@ var SChess = function (fen) {
         function gen_piece_moves(square, type) {
             for (var j = 0, len = PIECE_OFFSETS[type].length; j < len; j++) {
                 var offset = PIECE_OFFSETS[type][j];
-                let sq = square;
+                var sq = square;
                 while (true) {
                     sq += offset;
                     if (sq & 0x88) break;
@@ -1087,7 +1087,7 @@ var SChess = function (fen) {
 
         /* S-chess piece placement, Elephant or Hawk */
         if (move.s_piece) {
-            let placement_square;
+            var placement_square;
             if (typeof move.s_square !== "undefined") {
                 placement_square = move.s_square;
             } else {
@@ -1911,3 +1911,4 @@ var SChess = function (fen) {
 if (typeof exports !== 'undefined') exports.SChess = SChess;
 /* export Chess object for any RequireJS compatible environment */
 if (typeof define !== 'undefined') define( function () { return SChess;  });
+
