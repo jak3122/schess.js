@@ -616,4 +616,10 @@ describe("Regression tests", function() {
         var valid = game.validate_fen(game.fen());
         assert.isOk(valid.valid);
     });
+    it("Capturing a piece disables piece placement", function() {
+        var game = new SChess();
+        game.load("rn1qkbnr/pbpppppp/1p6/8/8/6P1/PPPPPP1P/RNBQKBNR SXSSSSSSssxsssss EHeh b KQkq - 3 3");
+        game.move("Bxh1");
+        assert.equal(game.fen(), "rn1qkbnr/p1pppppp/1p6/8/8/6P1/PPPPPP1P/RNBQKBNb SXSSSSSXssxsssss EHeh w Qkq - 0 4");
+    })
 });
