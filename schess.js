@@ -1041,6 +1041,10 @@ var SChess = function (fen) {
         var us = turn;
         var them = swap_color(us);
         push(move);
+        if ((move.captured) && (pieces_moved[them] & PIECE_BITS[square_to_piece_order[move.to]])) {
+            // if we capture a piece, disable piece placement for other side
+            pieces_moved[them] ^= PIECE_BITS[square_to_piece_order[move.to]];
+        }
         board[move.to] = board[move.from];
         board[move.from] = null;
 
@@ -1094,7 +1098,12 @@ var SChess = function (fen) {
                 placement_square = move.from;
             }
             board[placement_square] = { type: move.s_piece, color: us };
-            s_pieces[turn] ^= move.flags;
+            if (move.flags & BITS.ELEPHANT) {
+                s_pieces[turn] ^= BITS.ELEPHANT;
+            }
+            if (move.flags & BITS.HAWK) {
+                s_pieces[turn] ^= BITS.HAWK;
+            }
         }
 
         // if a piece if moving for the first time, disable placement

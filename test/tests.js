@@ -589,4 +589,37 @@ describe("Regression tests", function() {
         var game = new SChess('r3rh2/p2q4/b2p2pp/Ppp1p1p1/2Q1N2P/5P1P/1R2P1B1/2B1K2R SXSXSSSSsxxsssss - w q - 3 39');
         game.move('Qa2');
     });
+    it("Not toggling e/h bits correctly, which caused fen generation issues", function() {
+        var game = new SChess();
+        game.move('d4');
+        game.move('d5');
+        game.move('Bf4');
+        game.move('Bf5');
+        game.move('Nf3');
+        game.move('Nc6');
+        game.move('Nc3');
+        game.move('Qd7');
+        game.move('e3');
+        game.move('O-O-O/He8');
+        game.move('Qd2');
+        game.move('e6');
+        game.move('Bb5');
+        game.move('Bb4');
+        game.move('O-O/Hh1');
+        game.move('Nf6');
+        game.move('Rfe1');
+        game.move('Hd6');
+        game.move('Rad1/E');
+        game.move('Bg6');
+        game.move('Ec1');
+        game.move('Rhe8/E');
+        var valid = game.validate_fen(game.fen());
+        assert.isOk(valid.valid);
+    });
+    it("Capturing a piece disables piece placement", function() {
+        var game = new SChess();
+        game.load("rn1qkbnr/pbpppppp/1p6/8/8/6P1/PPPPPP1P/RNBQKBNR SXSSSSSSssxsssss EHeh b KQkq - 3 3");
+        game.move("Bxh1");
+        assert.equal(game.fen(), "rn1qkbnr/p1pppppp/1p6/8/8/6P1/PPPPPP1P/RNBQKBNb SXSSSSSXssxsssss EHeh w Qkq - 0 4");
+    })
 });
