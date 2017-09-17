@@ -580,12 +580,8 @@ var SChess = function (fen) {
             piece: board[from].type,
         };
         if (flags & (BITS.ELEPHANT | BITS.HAWK)) {
-            if (flags & (BITS.KSIDE_CASTLE | BITS.QSIDE_CASTLE)) {
-                if (typeof s_square === "undefined" || s_square === null) {
-                    move.s_square = from;
-                } else {
-                    move.s_square = s_square;
-                }
+            if (flags & (BITS.KSIDE_CASTLE | BITS.QSIDE_CASTLE) && !!s_square) {
+                move.s_square = s_square;
             }
             if (flags & BITS.ELEPHANT) {
                 move.s_piece = ELEPHANT;
@@ -634,36 +630,44 @@ var SChess = function (fen) {
                         }
                         if (flags & (BITS.KSIDE_CASTLE | BITS.QSIDE_CASTLE)) {
                             // if castling, generate additional E/H placement
-                            // moves on the rook's from-square
+                            // moves on the rook's from-square and king's from-square
                             if (flags & BITS.KSIDE_CASTLE) {
                                 if (turn === WHITE) {
                                     if (s_pieces[turn] & BITS.ELEPHANT) {
+                                        moves.push(build_move(board, from, to, flags | BITS.ELEPHANT, undefined, SQUARES.e1));
                                         moves.push(build_move(board, from, to, flags | BITS.ELEPHANT, undefined, SQUARES.h1));
                                     }
                                     if (s_pieces[turn] & BITS.HAWK) {
+                                        moves.push(build_move(board, from, to, flags | BITS.HAWK, undefined, SQUARES.e1));
                                         moves.push(build_move(board, from, to, flags | BITS.HAWK, undefined, SQUARES.h1));
                                     }
                                 } else {
                                     if (s_pieces[turn] & BITS.ELEPHANT) {
+                                        moves.push(build_move(board, from, to, flags | BITS.ELEPHANT, undefined, SQUARES.e8));
                                         moves.push(build_move(board, from, to, flags | BITS.ELEPHANT, undefined, SQUARES.h8));
                                     }
                                     if (s_pieces[turn] & BITS.HAWK) {
+                                        moves.push(build_move(board, from, to, flags | BITS.HAWK, undefined, SQUARES.e8));
                                         moves.push(build_move(board, from, to, flags | BITS.HAWK, undefined, SQUARES.h8));
                                     }
                                 }
                             } else if (flags & BITS.QSIDE_CASTLE) {
                                 if (turn === WHITE) {
                                     if (s_pieces[turn] & BITS.ELEPHANT) {
+                                        moves.push(build_move(board, from, to, flags | BITS.ELEPHANT, undefined, SQUARES.e1));
                                         moves.push(build_move(board, from, to, flags | BITS.ELEPHANT, undefined, SQUARES.a1));
                                     }
                                     if (s_pieces[turn] & BITS.HAWK) {
+                                        moves.push(build_move(board, from, to, flags | BITS.HAWK, undefined, SQUARES.e1));
                                         moves.push(build_move(board, from, to, flags | BITS.HAWK, undefined, SQUARES.a1));
                                     }
                                 } else {
                                     if (s_pieces[turn] & BITS.ELEPHANT) {
+                                        moves.push(build_move(board, from, to, flags | BITS.ELEPHANT, undefined, SQUARES.e8));
                                         moves.push(build_move(board, from, to, flags | BITS.ELEPHANT, undefined, SQUARES.a8));
                                     }
                                     if (s_pieces[turn] & BITS.HAWK) {
+                                        moves.push(build_move(board, from, to, flags | BITS.HAWK, undefined, SQUARES.e8));
                                         moves.push(build_move(board, from, to, flags | BITS.HAWK, undefined, SQUARES.a8));
                                     }
                                 }
@@ -1809,14 +1813,19 @@ var SChess = function (fen) {
                 var moves = generate_moves();
                 /* convert the pretty move object to an ugly move object */
                 for (var i = 0, len = moves.length; i < len; i++) {
-                    if (move.from === algebraic(moves[i].from) &&
-                        move.to === algebraic(moves[i].to) &&
-                        (!('promotion' in moves[i]) ||
-                            move.promotion === moves[i].promotion) &&
-                        ((!('s_piece' in moves[i]) && !('s_piece' in move)) ||
-                            move.s_piece === moves[i].s_piece) &&
-                        ((!('s_square' in moves[i]) && !('s_square' in move)) ||
-                            move.s_square === algebraic(moves[i].s_square))) {
+                    var fromEq = move.from === algebraic(moves[i].from);
+                    var toEq = move.to === algebraic(moves[i].to);
+                    var promEq = (!('promotion' in moves[i]) ||
+                            move.promotion === moves[i].promotion);
+                    var sPieceEq = ((!('s_piece' in moves[i]) && !('s_piece' in move)) ||
+                            move.s_piece === moves[i].s_piece);
+                    var sSquareEq = (
+                        (!('s_square' in moves[i]) && !('s_square' in move))
+                        || move.s_square === algebraic(moves[i].s_square)
+                        // default castling s_square to king's square (move.from)
+                        || ('s_square' in moves[i]) && (algebraic(moves[i].s_square) === move.from)
+                    );
+                    if (fromEq && toEq && promEq && sPieceEq && sSquareEq) {
                         move_obj = moves[i];
                         break;
                     }

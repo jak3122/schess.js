@@ -70,7 +70,7 @@ describe("Single Square Move Generation", function () {
             fen: 'r1b1k2r/ppp2ppp/2n2n2/3qP3/1b6/2NQ1N2/PPP2PPP/R1B1KB1R SXSXSSXSsxsxsxxs EHeh b KQkq - 15 8',
             square: 'e8', verbose: false, moves: ['Kf8', 'Ke7', 'Kd7', 'Kd8',
                 'Kf8/E', 'Kf8/H', 'Ke7/E', 'Ke7/H', 'Kd7/E', 'Kd7/H', 'Kd8/E', 'Kd8/H',
-                'O-O', 'O-O/Ee8', 'O-O/He8', 'O-O/Eh8', 'O-O/Hh8']
+                'O-O', 'O-O/E', 'O-O/H', 'O-O/Ee8', 'O-O/He8', 'O-O/Eh8', 'O-O/Hh8']
         },  // castling
         {
             fen: 'r1b1k1r1/ppp2pPp/2n2P2/3q4/8/2Pp1N2/P1P2PPP/R1B1KB1R SXSXSSXSsxsxsxsx EHeh b KQq - 27 14',
@@ -80,7 +80,7 @@ describe("Single Square Move Generation", function () {
             fen: 'r1bqk2r/ppp1bppp/3p1nn1/8/3NPP2/1BN5/PPP3PP/R1BQK2R SXSSSXXSsxsssxxs EHeh w KQkq - 16 9',
             square: 'e1', verbose: false, moves: ['Kd2', 'Ke2', 'Kf2', 'Kf1',
                 'Kd2/E', 'Kd2/H', 'Ke2/E', 'Ke2/H', 'Kf2/E', 'Kf2/H', 'Kf1/E', 'Kf1/H',
-                'O-O', 'O-O/Ee1', 'O-O/Eh1', 'O-O/He1', 'O-O/Hh1']
+                'O-O', 'O-O/E', 'O-O/H', 'O-O/Ee1', 'O-O/Eh1', 'O-O/He1', 'O-O/Hh1']
         },
         {
             fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR SSSSSSSSssssssss EHeh w KQkq - 0 1',
@@ -621,5 +621,26 @@ describe("Regression tests", function() {
         game.load("rn1qkbnr/pbpppppp/1p6/8/8/6P1/PPPPPP1P/RNBQKBNR SXSSSSSSssxsssss EHeh b KQkq - 3 3");
         game.move("Bxh1");
         assert.equal(game.fen(), "rn1qkbnr/p1pppppp/1p6/8/8/6P1/PPPPPP1P/RNBQKBNb SXSSSSSXssxsssss EHeh w Qkq - 0 4");
-    })
+    });
+    describe("Castling with s_piece without s_square defaults to king square", function() {
+        it("kside white", function() {
+            var game = new SChess();
+            game.load("r2qkbnr/ppp1pppp/2n1b3/3p4/8/4PN2/PPPPBPPP/RNBQK2R SSSSSSSSssssssss EHeh w KQkq - 4 4");
+            var castleMove = game.move("O-O/E");
+            assert.deepEqual(castleMove,
+                {from: "e1", to: "g1", s_piece: "e", color: "w", "flags": "k", san: "O-O/E", piece: "k"});
+            assert.equal(game.fen(),
+                "r2qkbnr/ppp1pppp/2n1b3/3p4/8/4PN2/PPPPBPPP/RNBQERK1 SSSSXSSXssssssss Heh b kq - 5 4")
+        });
+        it("qside white", function() {
+            var game = new SChess();
+            game.load("r3k2r/ppp1ppbp/2nqbnp1/3p4/3P4/2NQPN2/PPPBBPPP/R3K2R SSSSSSSSssssssss EHeh w KQkq - 2 8");
+            var castleMove = game.move("O-O-O/H");
+            assert.deepEqual(castleMove,
+                {from: "e1", to: "c1", s_piece: "h", color: "w", "flags": "q", san: "O-O-O/H", piece: "k"});
+            assert.equal(game.fen(),
+                "r3k2r/ppp1ppbp/2nqbnp1/3p4/3P4/2NQPN2/PPPBBPPP/2KRH2R XSSSXSSSssssssss Eeh b kq - 3 8")
+        });
+
+    });
 });
