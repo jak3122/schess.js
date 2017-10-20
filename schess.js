@@ -580,7 +580,7 @@ var SChess = function (fen) {
             piece: board[from].type,
         };
         if (flags & (BITS.ELEPHANT | BITS.HAWK)) {
-            if (flags & (BITS.KSIDE_CASTLE | BITS.QSIDE_CASTLE) && !!s_square) {
+            if (flags & (BITS.KSIDE_CASTLE | BITS.QSIDE_CASTLE) && typeof s_square !== "undefined") {
                 move.s_square = s_square;
             }
             if (flags & BITS.ELEPHANT) {
@@ -631,6 +631,7 @@ var SChess = function (fen) {
                         if (flags & (BITS.KSIDE_CASTLE | BITS.QSIDE_CASTLE)) {
                             // if castling, generate additional E/H placement
                             // moves on the rook's from-square and king's from-square
+                            console.log("castle move");
                             if (flags & BITS.KSIDE_CASTLE) {
                                 if (turn === WHITE) {
                                     if (s_pieces[turn] & BITS.ELEPHANT) {

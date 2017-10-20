@@ -643,4 +643,15 @@ describe("Regression tests", function() {
         });
 
     });
+
+    describe.only("castling", () => {
+        it.only("generates castling moves with rook-square placement", () => {
+            var game = new SChess();
+            game.load("r3kbnr/ppp1pppp/2nq4/3p1b2/2B1P3/5NE1/PPPP1PPP/RNBQ1RK1 SSSSXXXXsxxxssss Heh b kq - 7 5");
+            var moves = game.moves({verbose:true});
+            console.log(moves.filter(m => m.san.indexOf("O-O") !== -1));
+            assert(moves.some(move => move.from === "e8" && move.to === "c8"));
+            assert(moves.some(move => move.from === "e8" && move.to === "c8" && move.s_square === "a8"));
+        });
+    });
 });
