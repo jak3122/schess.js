@@ -644,14 +644,21 @@ describe("Regression tests", function() {
 
     });
 
-    describe.only("castling", () => {
-        it.only("generates castling moves with rook-square placement", () => {
+    describe("castling placement on rook square", () => {
+        it("generates castling moves with rook-square placement", () => {
             var game = new SChess();
             game.load("r3kbnr/ppp1pppp/2nq4/3p1b2/2B1P3/5NE1/PPPP1PPP/RNBQ1RK1 SSSSXXXXsxxxssss Heh b kq - 7 5");
             var moves = game.moves({verbose:true});
-            console.log(moves.filter(m => m.san.indexOf("O-O") !== -1));
             assert(moves.some(move => move.from === "e8" && move.to === "c8"));
             assert(moves.some(move => move.from === "e8" && move.to === "c8" && move.s_square === "a8"));
+        });
+        it("places spiece on rook square", () => {
+            var game = new SChess();
+            game.load("r3kbnr/ppp1pppp/2nq4/3p1b2/2B1P3/5NE1/PPPP1PPP/RNBQ1RK1 SSSSXXXXsxxxssss Heh b kq - 7 5");
+            var moveObject = {from: "e8", to: "c8", s_piece: "h", s_square: "a8"};
+            var move = game.move(moveObject);
+            assert.equal(game.fen(), "h1kr1bnr/ppp1pppp/2nq4/3p1b2/2B1P3/5NE1/PPPP1PPP/RNBQ1RK1 SSSSXXXXxxxxxsss He w - - 8 6");
+            assert.deepInclude(move, moveObject);
         });
     });
 });

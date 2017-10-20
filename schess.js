@@ -631,7 +631,6 @@ var SChess = function (fen) {
                         if (flags & (BITS.KSIDE_CASTLE | BITS.QSIDE_CASTLE)) {
                             // if castling, generate additional E/H placement
                             // moves on the rook's from-square and king's from-square
-                            console.log("castle move");
                             if (flags & BITS.KSIDE_CASTLE) {
                                 if (turn === WHITE) {
                                     if (s_pieces[turn] & BITS.ELEPHANT) {
@@ -1344,6 +1343,7 @@ var SChess = function (fen) {
     }
 
     function algebraic(i) {
+        if (typeof i === "undefined") return undefined;
         var f = file(i), r = rank(i);
         return 'abcdefgh'.substring(f, f + 1) + '87654321'.substring(r, r + 1);
     }
@@ -1815,8 +1815,6 @@ var SChess = function (fen) {
                     var sSquareEq = (
                         (!('s_square' in moves[i]) && !('s_square' in move))
                         || move.s_square === algebraic(moves[i].s_square)
-                        // default castling s_square to king's square (move.from)
-                        || ('s_square' in moves[i]) && (algebraic(moves[i].s_square) === move.from)
                     );
                     if (fromEq && toEq && promEq && sPieceEq && sSquareEq) {
                         move_obj = moves[i];
