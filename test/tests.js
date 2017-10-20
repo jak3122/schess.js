@@ -70,7 +70,7 @@ describe("Single Square Move Generation", function () {
             fen: 'r1b1k2r/ppp2ppp/2n2n2/3qP3/1b6/2NQ1N2/PPP2PPP/R1B1KB1R SXSXSSXSsxsxsxxs EHeh b KQkq - 15 8',
             square: 'e8', verbose: false, moves: ['Kf8', 'Ke7', 'Kd7', 'Kd8',
                 'Kf8/E', 'Kf8/H', 'Ke7/E', 'Ke7/H', 'Kd7/E', 'Kd7/H', 'Kd8/E', 'Kd8/H',
-                'O-O', 'O-O/E', 'O-O/H', 'O-O/Ee8', 'O-O/He8', 'O-O/Eh8', 'O-O/Hh8']
+                'O-O', 'O-O/E', 'O-O/H', 'O-O/Eh8', 'O-O/Hh8']
         },  // castling
         {
             fen: 'r1b1k1r1/ppp2pPp/2n2P2/3q4/8/2Pp1N2/P1P2PPP/R1B1KB1R SXSXSSXSsxsxsxsx EHeh b KQq - 27 14',
@@ -80,7 +80,7 @@ describe("Single Square Move Generation", function () {
             fen: 'r1bqk2r/ppp1bppp/3p1nn1/8/3NPP2/1BN5/PPP3PP/R1BQK2R SXSSSXXSsxsssxxs EHeh w KQkq - 16 9',
             square: 'e1', verbose: false, moves: ['Kd2', 'Ke2', 'Kf2', 'Kf1',
                 'Kd2/E', 'Kd2/H', 'Ke2/E', 'Ke2/H', 'Kf2/E', 'Kf2/H', 'Kf1/E', 'Kf1/H',
-                'O-O', 'O-O/E', 'O-O/H', 'O-O/Ee1', 'O-O/Eh1', 'O-O/He1', 'O-O/Hh1']
+                'O-O', 'O-O/E', 'O-O/H', 'O-O/Eh1', 'O-O/Hh1']
         },
         {
             fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR SSSSSSSSssssssss EHeh w KQkq - 0 1',
@@ -356,7 +356,7 @@ describe("Make Move", function () {
         },
         {
             fen: 'rnbqk2r/pppp1pp1/5n1p/2b1p3/2B1P3/2N2N2/PPPP1PPP/REBQK2R SXSSSXXSsssssxxs Heh w KQkq - 0 5',
-            legal: true,
+            legal: false,
             move: 'O-O/He1',
             next: 'rnbqk2r/pppp1pp1/5n1p/2b1p3/2B1P3/2N2N2/PPPP1PPP/REBQHRK1 SXSSXXXXsssssxxs eh b kq - 1 5'
         },
@@ -397,7 +397,7 @@ describe("Make Move", function () {
         {
             fen: 'rnbqk2r/pppp1pp1/5n1p/2b1p3/2B1P3/2N2N2/PPPP1PPP/REBQK2R SXSSSXXSsssssxxs Heh w KQkq - 0 5',
             legal: true,
-            move: {'from': 'e1', 'to': 'g1', 'piece': 'k', 's_piece': 'h', 's_square': 'e1'},
+            move: {'from': 'e1', 'to': 'g1', 'piece': 'k', 's_piece': 'h'},
             next: 'rnbqk2r/pppp1pp1/5n1p/2b1p3/2B1P3/2N2N2/PPPP1PPP/REBQHRK1 SXSSXXXXsssssxxs eh b kq - 1 5'
         },
         {
@@ -455,7 +455,7 @@ describe("Undo", function () {
         {
             fen: 'rnbqk2r/pppp1pp1/5n1p/2b1p3/2B1P3/2N2N2/PPPP1PPP/REBQK2R SXSSSXXSsssssxxs Heh w KQkq - 0 5',
             legal: true,
-            move: 'O-O/He1',
+            move: 'O-O/H',
             next: 'rnbqk2r/pppp1pp1/5n1p/2b1p3/2B1P3/2N2N2/PPPP1PPP/REBQHRK1 SXSSXXXXsssssxxs eh b kq - 1 5'
         },
         {

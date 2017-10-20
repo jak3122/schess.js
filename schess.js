@@ -634,40 +634,32 @@ var SChess = function (fen) {
                             if (flags & BITS.KSIDE_CASTLE) {
                                 if (turn === WHITE) {
                                     if (s_pieces[turn] & BITS.ELEPHANT) {
-                                        moves.push(build_move(board, from, to, flags | BITS.ELEPHANT, undefined, SQUARES.e1));
                                         moves.push(build_move(board, from, to, flags | BITS.ELEPHANT, undefined, SQUARES.h1));
                                     }
                                     if (s_pieces[turn] & BITS.HAWK) {
-                                        moves.push(build_move(board, from, to, flags | BITS.HAWK, undefined, SQUARES.e1));
                                         moves.push(build_move(board, from, to, flags | BITS.HAWK, undefined, SQUARES.h1));
                                     }
                                 } else {
                                     if (s_pieces[turn] & BITS.ELEPHANT) {
-                                        moves.push(build_move(board, from, to, flags | BITS.ELEPHANT, undefined, SQUARES.e8));
                                         moves.push(build_move(board, from, to, flags | BITS.ELEPHANT, undefined, SQUARES.h8));
                                     }
                                     if (s_pieces[turn] & BITS.HAWK) {
-                                        moves.push(build_move(board, from, to, flags | BITS.HAWK, undefined, SQUARES.e8));
                                         moves.push(build_move(board, from, to, flags | BITS.HAWK, undefined, SQUARES.h8));
                                     }
                                 }
                             } else if (flags & BITS.QSIDE_CASTLE) {
                                 if (turn === WHITE) {
                                     if (s_pieces[turn] & BITS.ELEPHANT) {
-                                        moves.push(build_move(board, from, to, flags | BITS.ELEPHANT, undefined, SQUARES.e1));
                                         moves.push(build_move(board, from, to, flags | BITS.ELEPHANT, undefined, SQUARES.a1));
                                     }
                                     if (s_pieces[turn] & BITS.HAWK) {
-                                        moves.push(build_move(board, from, to, flags | BITS.HAWK, undefined, SQUARES.e1));
                                         moves.push(build_move(board, from, to, flags | BITS.HAWK, undefined, SQUARES.a1));
                                     }
                                 } else {
                                     if (s_pieces[turn] & BITS.ELEPHANT) {
-                                        moves.push(build_move(board, from, to, flags | BITS.ELEPHANT, undefined, SQUARES.e8));
                                         moves.push(build_move(board, from, to, flags | BITS.ELEPHANT, undefined, SQUARES.a8));
                                     }
                                     if (s_pieces[turn] & BITS.HAWK) {
-                                        moves.push(build_move(board, from, to, flags | BITS.HAWK, undefined, SQUARES.e8));
                                         moves.push(build_move(board, from, to, flags | BITS.HAWK, undefined, SQUARES.a8));
                                     }
                                 }
